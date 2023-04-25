@@ -66,13 +66,11 @@ namespace CodingAB.Controllers
         }
 
         // POST: TimeOffRequests/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,EmployeeId,StartDate,EndDate,Type")] TimeOffRequest timeOffRequest)
         {
-            ModelState.Remove("Employee", "RequestSubmissionType");
+            ModelState.Remove("Employee");
             if (ModelState.IsValid)
             {
                 timeOffRequest.RequestSubmissionTime = DateTime.Now;
@@ -81,7 +79,6 @@ namespace CodingAB.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // If the ModelState is not valid, repopulate the drop-down lists before returning to the view
             ViewBag.EmployeeId = new SelectList(_context.Employees, "Id", "FirstName", timeOffRequest.EmployeeId);
             ViewBag.TimeOffTypes = Enum.GetValues(typeof(TimeOffType))
                 .Cast<TimeOffType>()
@@ -93,10 +90,25 @@ namespace CodingAB.Controllers
 
             return View(timeOffRequest);
         }
-        public IActionResult TimeOffHistory()
+        public IActionResult TimeOffHistory(int? employeeId, int? month)
         {
-            var timeOffRequests = _context.TimeOffRequests.Include(t => t.Employee).OrderByDescending(t => t.RequestSubmissionTime).ToList();
-            return View(timeOffRequests);
+            IQueryable<TimeOffRequest> timeOffRequests = _context.TimeOffRequests.Include(t => t.Employee);
+
+            if (employeeId.HasValue)
+            {
+                timeOffRequests = timeOffRequests.Where(t => t.EmployeeId == employeeId);
+            }
+
+            if (month.HasValue)
+            {
+                timeOffRequests = timeOffRequests.Where(t => t.StartDate.Month == month);
+            }
+
+            timeOffRequests = timeOffRequests.OrderByDescending(t => t.RequestSubmissionTime);
+
+            ViewBag.EmployeeId = new SelectList(_context.Employees, "Id", "FirstName");
+
+            return View(timeOffRequests.ToList());
         }
 
 
@@ -118,8 +130,6 @@ namespace CodingAB.Controllers
         }
 
         // POST: TimeOffRequests/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,EmployeeId,StartDate,EndDate,Type")] TimeOffRequest timeOffRequest)

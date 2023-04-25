@@ -20,3 +20,32 @@ html {
 body {
   margin-bottom: 60px;
 }
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.align-items-center-md {
+    align-items: center;
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+@media (max-width: 767px) {
+    .vh-75-md {
+        height: 75vh;
+    }
+
+    .align-items-center-md {
+        align-items: unset;
+    }
+}
