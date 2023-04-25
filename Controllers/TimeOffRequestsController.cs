@@ -72,7 +72,7 @@ namespace CodingAB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,EmployeeId,StartDate,EndDate,Type")] TimeOffRequest timeOffRequest)
         {
-            ModelState.Remove("Employee", "RequestSubmissionType");
+            ModelState.Remove("Employee");
             if (ModelState.IsValid)
             {
                 timeOffRequest.RequestSubmissionTime = DateTime.Now;
