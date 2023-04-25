@@ -1,36 +1,5 @@
-﻿@model CodingAB.Models.Employee
-
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
 @{
-    ViewData["Title"] = "Time Off History";
 }
-
-<h1>@ViewData["Title"]</h1>
-
-<div>
-    <h4>Employee: @Model.FirstName @Model.LastName</h4>
-    <hr />
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Type</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var timeOffRequest in Model.TimeOffRequests)
-            {
-                <tr>
-                    <td>@timeOffRequest.Type</td>
-                    <td>@timeOffRequest.StartDate.ToShortDateString()</td>
-                    <td>@timeOffRequest.EndDate.ToShortDateString()</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
-<div>
-    <a asp-action="Index">Back to Employees List</a>
-</div>
-

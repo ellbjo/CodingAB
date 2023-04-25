@@ -29,16 +29,24 @@ namespace CodingAB.Controllers
         // GET: Employees/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Employees == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
             var employee = await _context.Employees
+                .Include(e => e.TimeOffRequests)
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (employee == null)
             {
                 return NotFound();
+            }
+
+            // Check if the TimeOffRequests collection is null
+            if (employee.TimeOffRequests == null)
+            {
+                employee.TimeOffRequests = new List<TimeOffRequest>();
             }
 
             return View(employee);
@@ -57,7 +65,7 @@ namespace CodingAB.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,FirstName,LastName")] Employee employee)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid) 
             {
                 _context.Add(employee);
                 await _context.SaveChangesAsync();

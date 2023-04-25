@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CodingAB.Models;
+using System.Text.Json.Serialization.Metadata;
 
 namespace CodingAB.Controllers
 {
@@ -21,8 +22,11 @@ namespace CodingAB.Controllers
         // GET: TimeOffRequests
         public async Task<IActionResult> Index()
         {
-            var codingABContext = _context.TimeOffRequests.Include(t => t.Employee);
-            return View(await codingABContext.ToListAsync());
+            var timeOffRequests = await _context.TimeOffRequests
+                .Include(t => t.Employee)
+                .ToListAsync();
+
+            return View(timeOffRequests);
         }
 
         // GET: TimeOffRequests/Details/5
@@ -34,7 +38,7 @@ namespace CodingAB.Controllers
             }
 
             var timeOffRequest = await _context.TimeOffRequests
-                .Include(t => t.Employee)
+                .Include(t => t.EmployeeId)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (timeOffRequest == null)
             {
@@ -47,7 +51,41 @@ namespace CodingAB.Controllers
         // GET: TimeOffRequests/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
+            {
+                // Get a list of employees from the database
+                var employees = _context.Employees.ToList();
+
+                // Create a SelectList object for the employees
+                var employeeSelectList = new SelectList(employees, "Id", "FullName");
+
+                // Add the SelectList to the ViewBag
+                ViewBag.EmployeeId = employeeSelectList;
+
+                return View();
+
+                ViewData["TimeOffTypes"] = new SelectList(Enum.GetValues(typeof(TimeOffType)));
+                ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FullName");
+                return View();
+            }
+            //var employees = _context.Employees.ToList();
+            //var employeeList = employees.Select(e => new SelectListItem
+            //{
+            //    Value = e.Id.ToString(),
+            //    Text = e.FirstName
+            //});
+
+            //ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FirstName");
+            //ViewData["TimeOffTypes"] = new SelectList(Enum.GetValues(typeof(TimeOffType))
+            //ViewBag.TimeOffTypes = Enum.GetValues(typeof(TimeOffType)).Cast<TimeOffType>().ToList();
+            //.Cast<TimeOffType>()
+            // .Select(e => new SelectListItem
+            //{
+            // Value = ((int)e).ToString(),
+            //    Text = e.ToString()
+            //    })
+            //    .ToList(), "Value", "Text");
+
+
             return View();
         }
 
@@ -56,15 +94,23 @@ namespace CodingAB.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,EmployeeId,StartDate,EndDate,Type")] TimeOffRequest timeOffRequest)
+        public async Task<IActionResult> Create([Bind("Id,EmployeeId,StartDate,EndDate,Type")] TimeOffRequest timeOffRequest, int timeOffTypeId)
         {
+            var timeOffTypes = Enum.GetValues(typeof(TimeOffType)).Cast<TimeOffType>()
+                       .Select(e => new SelectListItem
+                       {
+                           Value = ((int)e).ToString(),
+                           Text = e.ToString()
+                       }).ToList();
+
             if (ModelState.IsValid)
             {
                 _context.Add(timeOffRequest);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", timeOffRequest.EmployeeId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "FullName", timeOffRequest.EmployeeId);
+            ViewData["TimeOffTypes"] = new SelectList(timeOffTypes, "Value", "Text");
             return View(timeOffRequest);
         }
 
@@ -130,7 +176,7 @@ namespace CodingAB.Controllers
             }
 
             var timeOffRequest = await _context.TimeOffRequests
-                .Include(t => t.Employee)
+                .Include(t => t.EmployeeId)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (timeOffRequest == null)
             {

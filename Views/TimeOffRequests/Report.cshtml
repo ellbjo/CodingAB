@@ -1,5 +1,5 @@
 ﻿@model CodingAB.Models.TimeOffRequest
-@using CodingAB.Models
+
 
 @{
     ViewData["Title"] = "Report Time Off";
@@ -21,15 +21,14 @@
                 <span asp-validation-for="EmployeeId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Type" class="control-label"></label>
-                <select asp-for="Type" class="form-control">
+                <label asp-for="Id" class="control-label"></label>
+                <select asp-for="Id" class="form-control">
                     <option value="">-- Select Time Off Type --</option>
-                    @foreach (TimeOffType type in Enum.GetValues(typeof(TimeOffType)))
-                    {
-                        <option value="@type">@type</option>
-                    }
+                    <option value="Vacation">Vacation</option>
+                    <option value="Sick">Sick</option>
+                    <option value="Personal">Personal</option>
                 </select>
-                <span asp-validation-for="Type" class="text-danger"></span>
+                <span asp-validation-for="Id" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="StartDate" class="control-label"></label>

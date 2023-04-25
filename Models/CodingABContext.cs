@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Collections;
 
 namespace CodingAB.Models
 {
@@ -11,5 +12,13 @@ namespace CodingAB.Models
 
         public DbSet<Employee> Employees { get; set; }
         public DbSet<TimeOffRequest> TimeOffRequests { get; set; }
+        public IEnumerable TimeOffTypes { get; internal set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<TimeOffRequest>()
+                .Property(t => t.Type)
+                .HasConversion<string>();
+        }
     }
 }
